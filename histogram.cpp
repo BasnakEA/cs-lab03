@@ -2,7 +2,6 @@
 #include"histogram.h"
 using namespace std;
 
-
 void find_minmax (const vector<double>& numbers, double& min, double& max) {
     if (numbers.size() != 0)
     {

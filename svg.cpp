@@ -1,7 +1,9 @@
 #include "svg.h"
+//#include "histogram.h"
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 void svg_begin(double width, double height) {
@@ -25,6 +27,53 @@ void svg_rect(double x, double y, double width, double height, string stroke, st
     cout << "<rect x='" << x << "' y='" << y << "' width='" << width << "' height='" << height << "' stroke='" << stroke << "' fill='" << fill << "' />";
 }
 
+size_t find_min(const vector<size_t>& bins) {
+    size_t min = bins[0];
+    for (const auto& bin : bins)
+    {
+        if (bin < min)
+        {
+            min = bin;
+        }
+    }
+    return min;
+}
+
+size_t find_max(const vector<size_t>& bins) {
+    size_t max = bins[0];
+    for (const auto& bin : bins)
+    {
+        if (bin > max)
+        {
+            max = bin;
+        }
+    }
+    return max;
+}
+
+string make_color(const vector<size_t>& bins, size_t bin, size_t max_count) {
+    ostringstream os;
+    size_t min = find_min(bins);
+    size_t max = find_max(bins);
+    size_t x;
+    if (bin == max)
+    {
+        x = 1;
+    }
+    else if (bin == min)
+    {
+        x = 9;
+    }
+    else
+    {
+        x =10 - (bin * 9) / max_count;
+    }
+    os << x;
+    string color = os.str();
+    color += color + color;
+    return color;
+}
+
 void show_histogram_svg(const vector<size_t>& bins) {
     const auto IMAGE_WIDTH = 400;
     const auto IMAGE_HEIGHT = 300;
@@ -33,13 +82,36 @@ void show_histogram_svg(const vector<size_t>& bins) {
     const auto TEXT_WIDTH = 50;
     const auto BIN_HEIGHT = 30;
     const auto BLOCK_WIDTH = 10;
+    const size_t MAX_ASTERISK = IMAGE_WIDTH - TEXT_LEFT - TEXT_WIDTH;
+
+    size_t max_count = 0;
+    for (size_t count : bins) {
+        if (count > max_count) {
+            max_count = count;
+        }
+    }
+
+    const bool scaling_needed = max_count * BLOCK_WIDTH > MAX_ASTERISK;
 
     svg_begin(IMAGE_WIDTH, IMAGE_HEIGHT);
+
+
     double top = 0;
     for (size_t bin : bins) {
-        const double bin_width = BLOCK_WIDTH * bin;
+
+        string color = make_color(bins, bin, max_count);
+
+        cout << endl << color << endl;
+
+        size_t height = bin;
+        if (scaling_needed) {
+            const double scaling_factor = (double)MAX_ASTERISK / (max_count * BLOCK_WIDTH);
+            height = (size_t)(bin * scaling_factor);
+        }
+
+        const double bin_width = BLOCK_WIDTH * height;
         svg_text(TEXT_LEFT, top + TEXT_BASELINE, bin);
-        svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, "red", "#ffeeee");
+        svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, "red", "#" + color);
         top += BIN_HEIGHT;
     }
     svg_end();
