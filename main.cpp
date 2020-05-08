@@ -5,6 +5,11 @@
 #include "svg.h"
 using namespace std;
 
+struct Input {
+    vector<double> numbers;
+    size_t bin_count;
+};
+
 vector<double> input_numbers(istream& in, const size_t count) {
     vector<double> result(count);
     for (size_t i = 0; i < count; i++) {
@@ -14,7 +19,22 @@ vector<double> input_numbers(istream& in, const size_t count) {
     return result;
 }
 
+Input
+read_input(istream& in) {
+    Input data;
 
+    cerr << "Enter number count: ";
+    size_t number_count;
+    cin >> number_count;
+
+    cerr << "Enter numbers: ";
+    data.numbers = input_numbers(in, number_count);
+
+    cerr << "Enter column count: ";
+    cin >> data.bin_count;
+
+    return data;
+}
 
 vector<size_t> make_histogram(const vector<double>& numbers, const size_t count) {
     vector<size_t> result(count);
@@ -70,23 +90,15 @@ void show_histogram_text(vector<size_t> bins) {
 
 int main() {
     // Ввод данных
-    size_t number_count;
-    cerr << "Enter number count: ";
-    cin >> number_count;
+    Input data = read_input(cin);
 
-    cerr << "Enter numbers: ";
-    const auto numbers = input_numbers(cin, number_count);
-
-
-    size_t bin_count;
-    cerr << "Enter column count: ";
-    cin >> bin_count;
 
     // Обработка данных
-    const auto bins = make_histogram(numbers, bin_count);
+    const auto bins = make_histogram(data.numbers, data.bin_count);
 
     // Вывод данных
     show_histogram_svg(bins);
+    //show_histogram_text(bins);
 
     return 0;
 }
