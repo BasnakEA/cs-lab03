@@ -17,7 +17,7 @@
 					<Add directory="curl/include" />
 				</Compiler>
 				<Linker>
-					<Add library="libcurll.dll.a" />
+					<Add library="curl/lib/libcurl.dll.a" />
 					<Add directory="curl/lib" />
 				</Linker>
 			</Target>
