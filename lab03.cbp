@@ -36,8 +36,14 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c++14" />
 			<Add option="-fexceptions" />
+			<Add directory="curl/include" />
 		</Compiler>
+		<Linker>
+			<Add library="curl/lib/libcurl.dll.a" />
+			<Add directory="curl/lib" />
+		</Linker>
 		<Unit filename="histogram.cpp" />
 		<Unit filename="histogram.h">
 			<Option target="&lt;{~None~}&gt;" />

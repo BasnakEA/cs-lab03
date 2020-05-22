@@ -4,7 +4,9 @@
 #include<curl/curl.h>
 #include<sstream>
 #include<cmath>
-#include "histogram.h"
+#include<cstdio>
+#include<windows.h>
+//#include "histogram.h"
 #include "svg.h"
 using namespace std;
 
@@ -111,7 +113,7 @@ int main(int argc, char* argv[]) {
     }
     if (((strcmp(format, "text") != 0) && (strcmp(format, "svg") != 0)) || (num == argc))
     {
-        cout << "You need enter to '-format' and then the format type ('text' or 'svg')!";
+        cout << "You need to enter to '-format' and then the format type ('text' or 'svg')!";
         exit(1);
     }
 

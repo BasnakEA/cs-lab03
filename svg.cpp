@@ -1,9 +1,10 @@
 #include "svg.h"
-//#include "histogram.h"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
+#include<cstdio>
+//#include<windows.h>
 using namespace std;
 
 void svg_begin(double width, double height) {
@@ -74,6 +75,34 @@ string make_color(const vector<size_t>& bins, size_t bin, size_t max_count) {
     return color;
 }
 
+void show_version(double y, const double TEXT_BSLN)
+{
+    DWORD dwVersion = GetVersion();
+
+    DWORD mask = 0x0000ffff;
+    DWORD version = dwVersion&mask;
+
+    DWORD platform = dwVersion >> 16;
+
+    DWORD mask2 = 0x00ff;
+    DWORD version_major = version&mask2;
+    DWORD version_minor = version >> 8;
+
+    if ((version & 0x80000000) == 0) {
+        char buffer[MAX_COMPUTERNAME_LENGTH+1]="";
+        DWORD size =MAX_COMPUTERNAME_LENGTH+1;
+        GetComputerNameA(buffer, &size);
+        cout << "<text x='" << left << "' y='" << y + 2*TEXT_BSLN << "'>Computer name: " << buffer << "</text>";
+    }
+
+    DWORD build = platform;
+
+    cout << "<text x='" << left << "' y='" << y + TEXT_BSLN << "'>Windows v" << version_major << "."
+    << version_minor << " (build " << build << ")</text>";
+}
+
+
+
 void show_histogram_svg(const vector<size_t>& bins) {
     const auto IMAGE_WIDTH = 400;
     const auto IMAGE_HEIGHT = 300;
@@ -114,5 +143,9 @@ void show_histogram_svg(const vector<size_t>& bins) {
         svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, "red", "#" + color);
         top += BIN_HEIGHT;
     }
+
+    show_version(top, TEXT_BASELINE);
+    //show_computername(top + 2*TEXT_BASELINE);
+
     svg_end();
 }

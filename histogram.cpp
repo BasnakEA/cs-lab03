@@ -18,6 +18,8 @@ void find_minmax (const vector<double>& numbers, double& min, double& max) {
         }
     }
 }
+//<<<<<<< HEAD
+//=======
 
 vector<size_t> make_histogram(const Input& data) {
     vector<size_t> result(data.bin_count);
@@ -33,6 +35,33 @@ vector<size_t> make_histogram(const Input& data) {
     }
 
     return result;
+}
+
+void write_version()
+{
+    DWORD dwVersion = GetVersion();
+
+    DWORD mask = 0x0000ffff;
+    DWORD version = dwVersion&mask;
+
+    DWORD platform = dwVersion >> 16;
+
+    DWORD mask2 = 0x00ff;
+    DWORD version_major = version&mask2;
+    DWORD version_minor = version >> 8;
+
+    char buffer[MAX_COMPUTERNAME_LENGTH+1]="";
+    if ((version & 0x80000000) == 0) {
+        DWORD size =MAX_COMPUTERNAME_LENGTH+1;
+        GetComputerNameA(buffer, &size);
+    }
+
+    DWORD build = platform;
+
+    cout << "Windows v" << version_major << "."
+    << version_minor << " (build " << build << ")" << endl;
+    cout << "Computer name: " << buffer << endl;
+
 }
 
 void show_histogram_text(vector<size_t> bins) {
@@ -67,4 +96,5 @@ void show_histogram_text(vector<size_t> bins) {
         }
         cout << '\n';
     }
+    write_version();
 }
