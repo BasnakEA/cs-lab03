@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include<cstdio>
+#include<windows.h>
 using namespace std;
 
 void svg_begin(double width, double height) {
@@ -74,6 +76,30 @@ string make_color(const vector<size_t>& bins, size_t bin, size_t max_count) {
     return color;
 }
 
+    void show_version(double y)
+    {
+        DWORD dwVersion = GetVersion();
+
+        DWORD mask = 0x0000ffff;
+        DWORD version = dwVersion&mask;
+
+        DWORD platform = dwVersion >> 16;
+
+        DWORD mask2 = 0x00ff;
+        DWORD version_major = version&mask2;
+        DWORD version_minor = version >> 8;
+
+        if ((version & 0x80000000) == 0) {
+            printf("OK\n");
+        }
+
+        DWORD build = platform;
+
+        //printf("Windows v%d.%d (build %d)", version_major, version_minor, build);
+        cout << "<text x='" << left << "' y='" << y << "'>Windows v" << version_major << "."
+        << version_minor << " (build " << build << ")</text>";
+    }
+
 void show_histogram_svg(const vector<size_t>& bins) {
     const auto IMAGE_WIDTH = 400;
     const auto IMAGE_HEIGHT = 300;
@@ -114,5 +140,8 @@ void show_histogram_svg(const vector<size_t>& bins) {
         svg_rect(TEXT_WIDTH, top, bin_width, BIN_HEIGHT, "red", "#" + color);
         top += BIN_HEIGHT;
     }
+
+    show_version(top + TEXT_BASELINE);
+    //cout << "<text x='" << left << "' y='" << top + TEXT_BASELINE << "'>" << "Windows v" <<"</text>";
     svg_end();
 }
