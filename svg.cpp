@@ -101,8 +101,6 @@ void show_histogram_svg(const vector<size_t>& bins) {
 
         string color = make_color(bins, bin, max_count);
 
-        cout << endl << color << endl;
-
         size_t height = bin;
         if (scaling_needed) {
             const double scaling_factor = (double)MAX_ASTERISK / (max_count * BLOCK_WIDTH);

@@ -1,92 +1,155 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include<curl/curl.h>
+#include<sstream>
+#include<cmath>
 #include "histogram.h"
 #include "svg.h"
 using namespace std;
 
-vector<double> input_numbers(const size_t count) {
+vector<double> input_numbers(istream& in, const size_t count) {
     vector<double> result(count);
     for (size_t i = 0; i < count; i++) {
-        cin >> result[i];
+        in >> result[i];
     }
-
     return result;
 }
 
-
-
-vector<size_t> make_histogram(const vector<double>& numbers, const size_t count) {
-    vector<size_t> result(count);
-    double min;
-    double max;
-    find_minmax(numbers, min, max);
-    for (double number : numbers) {
-        size_t bin = (size_t)((number - min) / (max - min) * count);
-        if (bin == count) {
-            bin--;
-        }
-        result[bin]++;
+size_t zero_bin_count(const size_t& number_count) {
+    size_t k = sqrt(number_count);
+    if (k > 25)
+    {
+        k = 1 + log2(number_count);
+        /*cout << "Sterdjis rule" << endl;
+        return k;*/
     }
-
-    return result;
+    //cout << "Emper formula" << endl;
+    return k;
 }
 
-void show_histogram_text(vector<size_t> bins) {
-    const size_t SCREEN_WIDTH = 80;
-    const size_t MAX_ASTERISK = SCREEN_WIDTH - 4 - 1;
-
-    size_t max_count = 0;
-    for (size_t count : bins) {
-        if (count > max_count) {
-            max_count = count;
-        }
-    }
-    const bool scaling_needed = max_count > MAX_ASTERISK;
-
-    for (size_t bin : bins) {
-        if (bin < 100) {
-            cout << ' ';
-        }
-        if (bin < 10) {
-            cout << ' ';
-        }
-        cout << bin << "|";
-
-        size_t height = bin;
-        if (scaling_needed) {
-            const double scaling_factor = (double)MAX_ASTERISK / max_count;
-            height = (size_t)(bin * scaling_factor);
-        }
-
-        for (size_t i = 0; i < height; i++) {
-            cout << '*';
-        }
-        cout << '\n';
-    }
-
-}
-
-
-int main() {
-    // Ввод данных
+Input
+read_input(istream& in, bool prompt) {
+    Input data;
     size_t number_count;
-    cerr << "Enter number count: ";
-    cin >> number_count;
 
-    cerr << "Enter numbers: ";
-    const auto numbers = input_numbers(number_count);
+    if (prompt)
+    {
+        cerr << "Enter number count: ";
+        in >> number_count;
+
+        cerr << "Enter numbers: ";
+        data.numbers = input_numbers(in, number_count);
+
+        cerr << "Enter column count: ";
+        in >> data.bin_count;
+    }
+    else
+    {
+        in >> number_count;
+        data.numbers = input_numbers(in, number_count);
+        in >> data.bin_count;
+    }
+
+    if (data.bin_count == 0)
+    {
+        data.bin_count = zero_bin_count(number_count);
+    }
 
 
-    size_t bin_count;
-    cerr << "Enter column count: ";
-    cin >> bin_count;
+    return data;
+}
+
+size_t
+write_data(void* items, size_t item_size, size_t item_count, void* ctx) {
+    const size_t data_size = item_size * item_count;
+    const char* new_items = reinterpret_cast<const char*>(items);
+    stringstream* buffer = reinterpret_cast<stringstream*>(ctx);
+    buffer->write(new_items, data_size);
+    return data_size;
+}
+
+Input
+download(const string& address) {
+    stringstream buffer;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    CURL *curl = curl_easy_init();
+    if(curl) {
+        CURLcode res;
+        curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK)
+        {
+            cout << curl_easy_strerror(res) << endl;
+            exit(1);
+        }
+        curl_easy_cleanup(curl);
+    }
+   return read_input(buffer, false);
+}
+
+int main(int argc, char* argv[]) {
+
+    const char* name = "Commander Shepard";
+    int year = 2154;
+    printf("%s was born in %d.\n", name, year);
+    printf("n = %08x\n", 0x1234567);
+    return 0;
+
+    Input input;
+    char* format;
+    int num;
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-format") == 0)
+        {
+            if (i != argc - 1)
+            {
+                format = argv[i+1];
+            }
+            num = i+1;
+            break;
+        }
+    }
+    if (((strcmp(format, "text") != 0) && (strcmp(format, "svg") != 0)) || (num == argc))
+    {
+        cout << "You need enter to '-format' and then the format type ('text' or 'svg')!";
+        exit(1);
+    }
+
+    if (argc > 1)
+    {
+        if (num == 2)
+        {
+            input = download(argv[3]);
+        }
+        else
+        {
+            input = download(argv[1]);
+        }
+    }
+    else
+    {
+        input = read_input(cin, true);
+    }
 
     // Обработка данных
-    const auto bins = make_histogram(numbers, bin_count);
+    const auto bins = make_histogram(input);
 
     // Вывод данных
-    show_histogram_svg(bins);
+    if (strcmp(format, "text") == 0)
+    {
+        show_histogram_text(bins);
+    }
+    else
+    {
+        show_histogram_svg(bins);
+    }
 
     return 0;
 }
