@@ -13,5 +13,6 @@ void show_histogram_svg(const std::vector<size_t>& bins);
 size_t find_min(const std::vector<size_t>& bins);
 size_t find_max(const std::vector<size_t>& bins);
 void show_version(double y);
+void show_computername();
 
 #endif // SVG_H_INCLUDED

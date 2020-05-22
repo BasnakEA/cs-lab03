@@ -76,29 +76,35 @@ string make_color(const vector<size_t>& bins, size_t bin, size_t max_count) {
     return color;
 }
 
-    void show_version(double y)
-    {
-        DWORD dwVersion = GetVersion();
+void show_version(double y)
+{
+    DWORD dwVersion = GetVersion();
 
-        DWORD mask = 0x0000ffff;
-        DWORD version = dwVersion&mask;
+    DWORD mask = 0x0000ffff;
+    DWORD version = dwVersion&mask;
 
-        DWORD platform = dwVersion >> 16;
+    DWORD platform = dwVersion >> 16;
 
-        DWORD mask2 = 0x00ff;
-        DWORD version_major = version&mask2;
-        DWORD version_minor = version >> 8;
+    DWORD mask2 = 0x00ff;
+    DWORD version_major = version&mask2;
+    DWORD version_minor = version >> 8;
 
-        if ((version & 0x80000000) == 0) {
-            printf("OK\n");
-        }
-
-        DWORD build = platform;
-
-        //printf("Windows v%d.%d (build %d)", version_major, version_minor, build);
-        cout << "<text x='" << left << "' y='" << y << "'>Windows v" << version_major << "."
-        << version_minor << " (build " << build << ")</text>";
+    if ((version & 0x80000000) == 0) {
+        printf("OK\n");
     }
+
+    DWORD build = platform;
+
+    cout << "<text x='" << left << "' y='" << y << "'>Windows v" << version_major << "."
+    << version_minor << " (build " << build << ")</text>";
+}
+
+void show_computername(double y) {
+    char buffer[MAX_COMPUTERNAME_LENGTH+1]="";
+    DWORD size =MAX_COMPUTERNAME_LENGTH+1;
+    GetComputerNameA(buffer, &size);
+    cout << "<text x='" << left << "' y='" << y << "'>Computer name: " << buffer << "</text>";
+}
 
 void show_histogram_svg(const vector<size_t>& bins) {
     const auto IMAGE_WIDTH = 400;
@@ -142,6 +148,7 @@ void show_histogram_svg(const vector<size_t>& bins) {
     }
 
     show_version(top + TEXT_BASELINE);
-    //cout << "<text x='" << left << "' y='" << top + TEXT_BASELINE << "'>" << "Windows v" <<"</text>";
+    show_computername(top + 2*TEXT_BASELINE);
+
     svg_end();
 }
