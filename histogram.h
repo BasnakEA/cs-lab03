@@ -15,4 +15,5 @@ vector<size_t> make_histogram(const Input& data);
 
 void show_histogram_text(vector<size_t> bins);
 
+
 #endif // HISTOGRAM_H_INCLUDED

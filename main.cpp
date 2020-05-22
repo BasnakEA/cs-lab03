@@ -3,6 +3,7 @@
 #include <string>
 #include<curl/curl.h>
 #include<sstream>
+#include<cmath>
 #include "histogram.h"
 #include "svg.h"
 using namespace std;
@@ -13,6 +14,18 @@ vector<double> input_numbers(istream& in, const size_t count) {
         in >> result[i];
     }
     return result;
+}
+
+size_t zero_bin_count(const size_t& number_count) {
+    size_t k = sqrt(number_count);
+    if (k > 25)
+    {
+        k = 1 + log2(number_count);
+        /*cout << "Sterdjis rule" << endl;
+        return k;*/
+    }
+    //cout << "Emper formula" << endl;
+    return k;
 }
 
 Input
@@ -36,6 +49,11 @@ read_input(istream& in, bool prompt) {
         in >> number_count;
         data.numbers = input_numbers(in, number_count);
         in >> data.bin_count;
+    }
+
+    if (data.bin_count == 0)
+    {
+        data.bin_count = zero_bin_count(number_count);
     }
 
 
@@ -75,11 +93,41 @@ download(const string& address) {
 }
 
 int main(int argc, char* argv[]) {
+    Input input;
+    char* format;
+    int num;
 
-   Input input;
-    if (argc > 1) {
-        input = download(argv[1]);
-    } else {
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-format") == 0)
+        {
+            if (i != argc - 1)
+            {
+                format = argv[i+1];
+            }
+            num = i+1;
+            break;
+        }
+    }
+    if (((strcmp(format, "text") != 0) && (strcmp(format, "svg") != 0)) || (num == argc))
+    {
+        cout << "You need enter to '-format' and then the format type ('text' or 'svg')!";
+        exit(1);
+    }
+
+    if (argc > 1)
+    {
+        if (num == 2)
+        {
+            input = download(argv[3]);
+        }
+        else
+        {
+            input = download(argv[1]);
+        }
+    }
+    else
+    {
         input = read_input(cin, true);
     }
 
@@ -87,8 +135,14 @@ int main(int argc, char* argv[]) {
     const auto bins = make_histogram(input);
 
     // Вывод данных
-    show_histogram_svg(bins);
-    //show_histogram_text(bins);
+    if (strcmp(format, "text") == 0)
+    {
+        show_histogram_text(bins);
+    }
+    else
+    {
+        show_histogram_svg(bins);
+    }
 
     return 0;
 }
