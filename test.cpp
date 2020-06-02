@@ -54,6 +54,7 @@ void test_color() {
     assert(make_color(bins, bins[1], 10) == "555");
     assert(make_color(bins, bins[2], 10) == "999");
     assert(make_color(bins, bins[3], 10) == "666");
+
 }
 
 void test_all() {
@@ -64,7 +65,6 @@ void test_all() {
     test_empty();
     test_color();
 }
-
 int
 main() {
    test_all();

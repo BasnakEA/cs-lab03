@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -133,10 +134,10 @@ int main(int argc, char* argv[]) {
         input = read_input(cin, true);
     }
 
-    // Обработка данных
+    // ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г¤Г Г­Г­Г»Гµ
     const auto bins = make_histogram(input);
 
-    // Вывод данных
+    // Г‚Г»ГўГ®Г¤ Г¤Г Г­Г­Г»Гµ
     if (strcmp(format, "text") == 0)
     {
         show_histogram_text(bins);
